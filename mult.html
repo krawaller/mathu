@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="calc.css"/>
+		<script type="text/javascript" src="jquery-1.7.1-min.js"></script>
+		<script type="text/javascript" src="mult.js"></script>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	</head>
+	<body>
+		<p>Multiplikation</p>
+		<input type="text" id="mult1" ></input>
+		<input type="text" id="mult2" ></input>
+		<input type="button" id="multbutton" value="Multiplicera!" />
+		<div id="mult"></div>
+		<script type="text/javascript">
+$("#multbutton").click(function(e){
+	var state = M.prep( Number( $("#mult1").val().replace(/,/,".") ) , Number( $("#mult2").val().replace(/,/,".") ) );
+	
+	
+	while(state.at!=="stop"){
+		state = M[state.at](state);
+		$("#mult").append( state.frag.html() );
+	}
+	
+});
+
+$("#mult1").val("5.89");
+$("#mult2").val("8207");
+$("#multbutton").click();
+
+		</script>
+	</body>
+</html>

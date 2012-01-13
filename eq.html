@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="jsxgraph.css"/>
+		<script type="text/javascript" src="jsxgraphcore.js"></script>
+		<script type="text/javascript" src="jquery-1.7.1-min.js"></script>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<style type="text/css">
+.box {
+	float: left;
+	margin: 1em;
+}
+		</style>
+	</head>
+	<body>
+		<div class="box">
+			<h2>Bestäm din ekvation</h2>
+			<div id="sliders" class="jxgbox" style="width:200px; height:120px;"></div>
+		</div>
+		<div class="box">
+			<h2>Grafisk lösning</h2>
+			<div id="graph" class="jxgbox" style="width:200px; height:200px;"></div>
+		</div>
+		<div class="box">
+			<h2>Lösningar</h2>
+			<p id="soldesc" />
+			<p id="sol1" />
+			<p id="sol2" />
+		</div>
+		<script type="text/javascript">
+			var solution,a,b,c;
+			function fixNumber(num){
+				return Math.round(1000*Number(num))/1000
+			}
+			function Solve(p,q){
+				var firstpart = fixNumber(-p/2),
+					scndpart = (p/2)*(p/2)-q;
+				if (scndpart < 0) {
+					return [];
+				} else if (!scndpart) {
+					return [firstpart]
+				} else {
+					var root = fixNumber(Math.sqrt(scndpart)),
+						sub = fixNumber(firstpart-root),
+						add = fixNumber(firstpart+root);
+					return [sub,add];
+				}
+			}
+		
+		/* SLIDERS */
+			var brd_sliders = JXG.JSXGraph.initBoard('sliders',{
+				axis:false,
+				keepaspectratio:true,
+				showNavigation: false,
+				showCopyright: false,
+				originX: 0,
+				originY: 100,
+				unitX: 1,
+				unitY: 1
+			});
+			var slider_a = brd_sliders.create('slider', [[20,60],[120,60],[-5,1,5]],{name:'a',snapWidth:0.5}),
+				slider_b = brd_sliders.create('slider', [[20,40],[120,40],[-5,1,5]],{name:'b',snapWidth:0.5}),
+				slider_c = brd_sliders.create('slider', [[20,20],[120,20],[-5,1,5]],{name:'c',snapWidth:0.5});
+			brd_sliders.create('text',[20,0,function(){
+				var astr = (a!==1?a:" ")+"x^2",
+					bstr = (!b ? "" : b>0 ? "+"+b+"x" : "-"+b+"x"),
+					cstr = (!c ? "" : c>0 ? "+"+c : "-"+c);
+				return "Din funktion: "+astr+bstr+cstr;
+			}]);
+			brd_sliders.create('text',[20,80,"ax^2+bx+c"])
+			brd_sliders.addHook(function(){
+				a = slider_a.Value();
+				b = slider_b.Value();
+				c = slider_c.Value();
+				if (a){
+					solution = Solve(b/a,c/a);
+				}
+				if (brd_graph){
+					brd_graph.fullUpdate();
+				}
+			},"update")
+		/* GRAPH */
+			var brd_graph = JXG.JSXGraph.initBoard('graph',{
+				axis:true,
+				keepaspectratio:true,
+				showNavigation: false,
+				showCopyright: false,
+				originX: 100,
+				originY: 100,
+				unitX: 15,
+				unitY: 15
+			});
+			var graph = brd_graph.create('functiongraph', 
+				[function(x){ return a*x*x + b*x+c;}, -10,10],{
+					strokeColor: "maroon"
+				}
+			);
+			var fgraph = brd_graph.create('functiongraph',
+				[function(x){ return x*x + b*x/a + c/a;}],{
+					strokeColor: "green"
+				}
+			);
+			var sol1 = brd_graph.create('point',[function(){
+				return solution.length ? solution[0] : -20;
+			},0]);
+			var sol2 = brd_graph.create('point',[function(){
+				return solution.length == 2 ? solution[1] : -20;
+			},0]);
+			var txt = brd_graph.create('text',[-5,-5,function(){
+				if (!solution.length){
+					return "Inga lösningar!";
+				} else if (solution.length === 1) {
+					return "En lösning i x="+solution[0];
+				} else {
+					return "Två lösningar; x="+solution[0]+" och "+solution[1];
+				}
+			}]);
+			brd_sliders.fullUpdate();
+		</script>
+	</body>
+</html>

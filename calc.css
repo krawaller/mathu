@@ -1,0 +1,82 @@
+div.info {
+	float: left;
+	width: 300px;
+	margin-right: 1em;
+}
+
+div.step {
+	margin: 1em;
+	margin-bottom: 2em;
+	clear: both;
+}
+
+div.step:after {
+	content: ".";
+	color: transparent;
+	clear: both;
+}
+
+table.calc {
+	border-collapse: collapse;
+}
+
+table.calc td {
+	border: 1px solid #EEE;
+	height: 16px;
+	width: 8px;
+}
+
+td.zero {
+	color: #BBB;
+}
+
+td.firstdec:before {
+	content: ",";
+	position: absolute;
+	margin-left: -4px;
+	margin-top: 2px;
+}
+
+tr.num td.digitempty, tr.num td.digit, tr.num td.lead {
+	border-bottom-color: black;
+}
+
+tr.hidden {
+	display: none;
+}
+
+tr.plus td.plusdigit {
+	border-top-color: black;
+}
+
+.mem {
+	text-decoration: line-through;
+	color: #BBB;
+}
+
+.highlightnum {
+	background-color: yellow;
+}
+
+.highlighttarget {
+	background-color: lightpink;
+}
+
+.highlightans {
+	background-color: lightblue;
+}
+
+.highlightmemold {
+	background-color: gold;
+	color: black;
+}
+
+.highlightmemnew {
+	background-color: lightgreen;
+	text-decoration: none;
+	color: black;
+}
+
+td.borderbottom {
+	border-bottom-color: black !important;
+}

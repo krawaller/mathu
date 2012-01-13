@@ -1,0 +1,58 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="jsxgraph.css"/>
+		<script type="text/javascript" src="jsxgraphcore.js"></script>
+	</head>
+	<body>
+		<div id="box" class="jxgbox" style="width:300px; height:300px;"></div>
+		<script type="text/javascript">
+			var brd = JXG.JSXGraph.initBoard('box',{
+				axis:true,
+				originX: 150,
+				originY: 150,
+				unitX: 5,
+				unitY: 5
+			});
+			brd.suspendUpdate();
+			var clrAB = "purple", clrBC = "green", clrAC = "blue",
+				a = brd.create('point',[-15,-15],{style:6}),
+				b = brd.create('point',[15,-15],{style:6}),
+				c = brd.create('point',[5,10],{style:6}),
+				poly = brd.create('polygon',[a,b,c],{}),
+				AB = brd.create('segment',[a,b],{strokeColor:clrAB}),
+				pABleftwall = brd.create('perpendicular',[AB,a],{visible:false}),
+				pABrightwall = brd.create('perpendicular',[AB,b],{visible:false}),
+				pABroof = brd.create('perpendicular',[pABleftwall,c],{visible:false}),
+				ABtopleft = brd.create('intersection',[pABleftwall,pABroof,0],{visible:false}),
+				ABtopright = brd.create('intersection',[pABrightwall,pABroof,0],{visible:false}),
+				ABleftwall = brd.create('segment',[a,ABtopleft],{dash:3,strokeColor:clrAB}),
+				ABrightwall = brd.create('segment',[b,ABtopright],{dash:3,strokeColor:clrAB}),
+				ABroof = brd.create('segment',[ABtopleft,ABtopright],{dash:3,strokeColor:clrAB}),
+				midfloor = brd.create('midpoint',[a,b],{visible:false}),
+				ABfloorlen = brd.create('text',[function(){return midfloor.X()-5},function(){return midfloor.Y()-2},function(){return "bas = "+Math.round(Math.sqrt(a.X()*a.X()+b.X()*b.X()),2)}]),
+				
+				AC = brd.create('segment',[a,c],{strokeColor:clrAC}),
+				pACleftwall = brd.create('perpendicular',[AC,c],{visible:false}),
+				pACrightwall = brd.create('perpendicular',[AC,a],{visible:false}),
+				pACroof = brd.create('perpendicular',[pACleftwall,b],{visible:false}),
+				ACtopleft = brd.create('intersection',[pACleftwall,pACroof,0],{visible:false}),
+				ACtopright = brd.create('intersection',[pACrightwall,pACroof,0],{visible:false}),
+				ACleftwall = brd.create('segment',[c,ACtopleft],{dash:3,strokeColor:clrAC}),
+				ACrightwall = brd.create('segment',[a,ACtopright],{dash:3,strokeColor:clrAC}),
+				ACroof = brd.create('segment',[ACtopleft,ACtopright],{dash:3,strokeColor:clrAC}),
+				
+				BC = brd.create('segment',[b,c],{strokeColor:clrBC}),
+				pBCleftwall = brd.create('perpendicular',[BC,b],{visible:false}),
+				pBCrightwall = brd.create('perpendicular',[BC,c],{visible:false}),
+				pBCroof = brd.create('perpendicular',[pBCleftwall,a],{visible:false}),
+				BCtopleft = brd.create('intersection',[pBCleftwall,pBCroof,0],{visible:false}),
+				BCtopright = brd.create('intersection',[pBCrightwall,pBCroof,0],{visible:false}),
+				BCleftwall = brd.create('segment',[b,BCtopleft],{dash:3,strokeColor:clrBC}),
+				BCrightwall = brd.create('segment',[c,BCtopright],{dash:3,strokeColor:clrBC}),
+				BCroof = brd.create('segment',[BCtopleft,BCtopright],{dash:3,strokeColor:clrBC});
+			brd.update();
+			brd.unsuspendUpdate();
+		</script>
+	</body>
+</html>

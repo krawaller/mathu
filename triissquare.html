@@ -1,0 +1,40 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="jsxgraph.css"/>
+		<script type="text/javascript" src="jsxgraphcore.js"></script>
+	</head>
+	<body>
+		<div id="box" class="jxgbox" style="width:300px; height:300px;"></div>
+		<script type="text/javascript">
+			var brd = JXG.JSXGraph.initBoard('box',{
+				axis:true,
+				originX: 150,
+				originY: 150,
+				unitX: 5,
+				unitY: 5
+			});
+			brd.suspendUpdate();
+			var s = brd.create('slider', [[-20,20],[20,20],[-0.2,0.2,1.2]],{name:'top'}),
+				a = brd.create('point',[-15,-15],{style:6}),
+				b = brd.create('point',[15,-15],{style:6}),
+				floor = brd.create('segment',[a,b],{visible:false}),
+				tright = brd.create('transform',[function(){return s.Value()*a.Dist(b)},0],{type:'translate'}),
+				tup = brd.create('transform',[0,20],{type:'translate'}),
+				trot = brd.create('transform',[function(){return floor.getAngle()},a],{type:'rotate'})
+				c = brd.create('point',[a,tright],{visible:false}),
+				d = brd.create('point',[a,tup],{visible:false}),
+				leftwall = brd.create('segment',[a,d],{visible:false}),
+				proof = brd.create('perpendicular',[leftwall,d],{visible:false}),
+				pheight = brd.create('perpendicular',[floor,c],{visible:false}),
+				e = brd.create('intersection',[proof,pheight,0],{}),
+				height = brd.create('segment',[c,e],{dash:3}),
+				triangle = brd.create('polygon',[a,b,e],{}),
+				angle = brd.create('angle',[e,c,a],{name:"90°"})
+			trot.bindTo(c);
+			trot.bindTo(d);
+			brd.update();
+			brd.unsuspendUpdate();
+		</script>
+	</body>
+</html>
