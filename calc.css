@@ -7,10 +7,9 @@ div.info {
 div.step {
 	margin: 1em;
 	margin-bottom: 2em;
-	clear: both;
 }
 
-div.step:after {
+div.step:after, table.calc:after {
 	content: ".";
 	color: transparent;
 	clear: both;
@@ -58,8 +57,12 @@ tr.plus td.plusdigit {
 	background-color: yellow;
 }
 
-.highlighttarget {
+.highlighttarget, .highlightzero, .highlightdec {
 	background-color: lightpink;
+}
+
+td.highlightnum, td.highlighttarget {
+	color: black;
 }
 
 .highlightans {

@@ -18,11 +18,14 @@
 			var str = ""+el[0],
 				pre = el[1];
 			state[pre] = str;
+			state[pre+"fixed"] = (""+str).replace(/0*$/g,"");
 			state[pre+"zeroes"] = (str.match(/0{1,}$/g) || [""])[0].length;
 			state[pre+"dec"] = (str.match(/\..*/g) || ["X"])[0].length-1;
 			state[pre+"digits"] = str.replace(/0{1,}$/g,"").replace(/\./,"").split("").map(function(d){return Number(d);});
 		});
 		state.maxzeroes = Math.max(state.targetzeroes,state.numzeroes)
+		state.totalzeroes = state.targetzeroes+state.numzeroes;
+		state.totaldec = state.numdec + state.targetdec;
 		state.frag = $(draw(state));
 		return state;
 	}
@@ -43,7 +46,7 @@
 			// digpadding
 			html+=(new Array(digpadding+1)).join("<td></td>")
 			// lead cell
-			html+="<td class='lead"+(pre==="num"?"'>*":"empty'>")+"</td>";
+			html+="<td class='lead"+(pre==="num"?"'>&middot;":"empty'>")+"</td>";
 			// digits
 			var missing = maxdigits-dgs.length;
 			for(var i = 0; i<maxdigits; i++){
@@ -63,7 +66,8 @@
 			html += "</tr>";
 		});
 		// answerrows
-		for(i=0;i<state.numdigits.length;i++){
+		var len = state.numdigits.length;
+		for(i=0;i<len;i++){
 			html+="<tr id='multrow"+(i+1)+"' class='multrow hidden'>";
 			// lead padding
 			html+= (new Array(Math.max(0,digpadding-i+1))).join("<td></td>");
@@ -71,22 +75,29 @@
 			html+= "<td"+(i && i === state.numdigits.length-1?" id='plus' class='aboveplus'":"")+"></td>";
 			// answerdigits
 			for(var j=0;j<=state.targetdigits.length;j++){
-				html += "<td class='ans"+(i==state.numdigits.length-1?" aboveplus":"")+"' id='ans"+(i+1)+"-"+(state.targetdigits.length-j+1)+"'></td>";
+				html += "<td class='ans"+(len>1 && i==len-1?" aboveplus":"")+"' id='ans"+(i+1)+"-"+(state.targetdigits.length-j+1)+"'></td>";
 			}
-			// trailing padding
-			html+= (new Array(i+1)).join("<td"+(i==state.numdigits.length-1?" class='aboveplus'":"")+"></td>");
-			html+= (new Array(maxzeroes+2)).join("<td></td>");
-			//memcols
-			for(j=0;j<memwidth;j++){
-				html+= "<td class='mem' id='mem"+(mem++)+"'></td>";
+			if (len > 1){
+				// trailing padding
+				html+= (new Array(i+1)).join("<td"+(i==len-1? " class='aboveplus'":"")+"></td>");
+				html+= (new Array(maxzeroes+2)).join("<td></td>");
+				//memcols
+				for(j=0;j<memwidth;j++){
+					html+= "<td class='mem' id='mem"+(mem++)+"'></td>";
+				}
+			} else {
+				console.log("SINGLEDIGIT")
+				for(j=1;j<maxzeroes+2+memwidth;j++){
+					html+="<td id='anszero"+j+"'></td>";
+				}
 			}
 			html+="</tr>";
 		}
 		// addrow
-		if (state.numdigits.length>1){
+		if (len>1){
 			html+="<tr class='plus hidden'>";
-			for(i=state.targetdigits.length+state.numdigits.length+1;i;i--){
-				html+="<td class='plusdigit' id='plus"+i+"'></td>";
+			for(i=state.targetdigits.length+len+1;i;i--){
+				html+="<td class='plusdigit' id='ans"+(len+1)+"-"+i+"'></td>";
 			}
 			for(i=1;i<maxzeroes+2+memwidth;i++){
 				html+="<td id='anszero"+i+"'></td>";
@@ -97,7 +108,8 @@
 	}
 	
 	function clearHighlights(frag){
-		["highlightnum","highlighttarget","highlightans","highlightmemold","highlightmemnew"].forEach(function(h){
+		["zero","num","target","ans","memold","memnew","dec"].forEach(function(h){
+			h = "highlight"+h;
 			frag.find("."+h).removeClass(h);
 		});
 		return frag;
@@ -107,7 +119,10 @@
 		var frag = state.frag = clearHighlights(state.frag),
 			msg = "Skriv upp <span class='highlightnum'>"+state.num+"</span> och <span class='highlighttarget'>"+
 					state.target+"</span> ovanför varandra så att de slutar i samma kolumn. ";
-		if (Math.max(state.targetzeroes,state.numzeroes)){
+		if (state.totaldec){
+			msg += "Var decimalkommat hamnat spelar ingen roll. "
+		}
+		if (state.totalzeroes){
 			msg+= "Låt nollor i slutet 'skjuta ut', de behöver vi inte ta hänsyn till förrän i slutet.";
 		}
 		frag.find("tr.target .digit").addClass("highlighttarget");
@@ -126,16 +141,16 @@
 		$("#num"+state.n,frag).addClass("highlightnum");
 		$("tr.target .digit",frag).addClass("highlighttarget");
 		if (state.n == 1){
-			msg = "Nu ska vi gångra alla siffrorna i <span class='highlighttarget'>"+state.target+
-				"</span> med siffrorna i "+state.numdigits.join("")+", en i taget. Vi börjar längst till höger med <span class='highlightnum'>"+
+			msg = "Nu ska vi gångra alla siffrorna i <span class='highlighttarget'>"+state.targetfixed+
+				"</span> med siffrorna i "+state.numfixed+", en i taget. Vi börjar längst till höger med <span class='highlightnum'>"+
 				state.numdigits[state.numdigits.length-1]+"</span>."+
 				" Resultaten kommer vi skriva <span class='highlightans'>nedanför</span>.";
 		}
 		// following row
 		else {
 			msg = "Nu är det nästa siffra, <span class='highlightnum'>"+state.numdigits[state.numdigits.length-state.n]+
-				"</span>, som ska gångras med siffrorna i <span class='highlighttarget'>"+state.target+"</span>."+
-				" Resultatet skriver vi på en <span class='highlightans'>ny rad</span>, ett steg till vänster om den ovan.";
+				"</span>, som ska gångras med siffrorna i <span class='highlighttarget'>"+state.targetfixed+"</span>."+
+				" Resultatet kommer vi skriva på en <span class='highlightans'>ny rad</span>, ett steg till vänster om den ovan.";
 		}
 		// result
 		$("#multrow"+state.n,frag).removeClass("hidden").find("td.ans").addClass("highlightans");
@@ -156,7 +171,7 @@
 			msg;
 		// initial multiplication
 		msg = (state.t!==1?"":"Vi börjar med ")+
-			  "<span class='highlightnum'>"+n+"</span>*"+
+			  "<span class='highlightnum'>"+n+"</span>&middot;"+
 			  "<span class='highlighttarget'>"+t+"</span> = "+(n*t)+". ";
 		$("#num"+state.n,frag).addClass("highlightnum");
 		$("#target"+state.t,frag).addClass("highlighttarget");
@@ -191,14 +206,43 @@
 		$(".info",frag).html(msg);
 
 		state.t++;
-		if (state.t === state.targetdigits.length+1){
-			if (state.n === state.numdigits.length){
-				state.at = "setupadd";
+		if (state.t === state.targetdigits.length+1){ // finished multiplying a row
+			if (state.n === state.numdigits.length){ // finished with last row
+				state.at = "done";
+				if (state.numdigits.length>1){
+					state.at = "setupadd";
+				} else {
+					if (state.totalzeroes) {
+						state.at = "movezeroes"
+					} else {
+						if (state.totaldec){
+							state.at = "usedecimals";
+						}
+					}
+				}
 			} else {
 				state.at = "beginrow";
 			}
 		}
 
+		return state;
+	}
+	
+	function done(state){
+		var frag = state.frag = clearHighlights(state.frag),
+			ans = ""+Number(state.targetdigits.join(""))*Number(state.numdigits.join(""));
+
+		if(state.totalzeroes){
+			ans+= (new Array(state.totalzeroes+1)).join("0");
+		}
+		if(state.totaldec){
+			ans = ans.substr(0,ans.length-state.totaldec)+","+ans.substr(ans.length-state.totaldec,100);
+		}
+		frag.find("tr.target .digit").add(frag.find("tr.target .zero")).addClass("highlighttarget");
+		frag.find("tr.num .digit").add(frag.find("tr.num .zero")).addClass("highlightnum");
+		frag.find(".ansused").addClass("highlightans");
+		frag.find(".info").html("Vi är nu helt klara, och har kommit fram till att <span class='highlighttarget'>"+state.target+"</span> &middot; <span class='highlightnum'>"+state.num+"</span> = <span class='highlightans'>"+ans+"</span>!");
+		state.at = "stop";
 		return state;
 	}
 	
@@ -220,25 +264,77 @@
 		var frag = state.frag = clearHighlights(state.frag),
 			sum = Number(state.targetdigits.join(""))*Number(state.numdigits.join("")),
 			sumdigits = (""+sum).split(""),
-			msg = "Nu adderar vi kolumn för kolumn, och får fram summan "+sum+"!";
+			msg = "Nu adderar vi kolumn för kolumn, och får fram summan <span class='highlightans'>"+sum+"</span>!";
 		for(var i=0;i<=sumdigits.length;i++){
-			frag.find("#plus"+(i)).text(sumdigits[sumdigits.length-i]);
+			frag.find("#ans"+(state.numdigits.length+1)+"-"+(i)).addClass("ansused highlightans").text(sumdigits[sumdigits.length-i])
 		}
 		frag.find(".info").html(msg);
-		if (state.maxzeroes){
-			state.at = "usezeroes"
-		} else {
-			state.at = "stop";
+		state.at = "done";
+		if (state.totalzeroes){
+			state.at = "movezeroes";
+		} else if (state.totaldec){
+			state.at = "usedecimals";
 		}
 		return state;
 	}
 	
-	function usezeroes(state){
-		
+	function movezeroes(state){
+		var frag = state.frag = clearHighlights(state.frag),
+			z = state.totalzeroes,
+			msg = "Eftersom vi hade <span class='highlightzero'>"+z+" noll"+(z>1?"or":"a")+"</span> i faktorerna så måste vi nu <span class='highlightans'>lägga till "+(z>1?"dessa":"den")+" i svaret</span>! ";
+		if (state.totaldec){
+			state.at = "usedecimals";
+		} else {
+			state.at = "done";
+		}
+		for(var i=1;i<=state.totalzeroes;i++){
+			frag.find("#anszero"+i).text("0").addClass("highlightans").addClass('ansused');
+			frag.find(".zero").addClass("highlightzero");
+		}
+		frag.find(".info").html(msg);
+		return state;
+	}
+	
+	function usedecimals(state){
+		var frag = state.frag = clearHighlights(state.frag),
+			d = state.totaldec,
+			msg = "Faktorerna har <span class='highlightdec'>"+d+" decimal"+(d>1?"er":"")+"</span>, så svaret måste också ha <span class='highlightans'>"+d+" decimal"+(d>1?"er":"")+"</span>. Skriv in decimalkommat på rätt plats."
+		frag.find(".info").html(msg);
+		if (state.numdec){
+			for(var i=1;i<=state.numdec;i++){
+				frag.find("#num"+i).addClass("highlightdec");
+			}
+		}
+		if (state.targetdec){
+			for(var i=1;i<=state.targetdec;i++){
+				frag.find("#target"+i).addClass("highlightdec");
+			}
+		}
+		var t = state.totaldec - state.totalzeroes;
+		if (t === 0){
+			t = -1;
+		}
+		if (t>0){
+			for(i=1;i<=t;i++){
+				frag.find("#ans"+(state.numdigits.length+(state.numdigits.length>1?1:0))+"-"+i).addClass("highlightans"+(i===t?" firstdec":""));
+			}
+		}
+		//the zeroes
+		var skip = state.totalzeroes-state.totaldec;
+		for(i=1;i<=state.totalzeroes;i++){
+			console.log("zero",i,"total",state.totalzeroes,"dec",state.totaldec,"condition",state.totalzeroes-i>state.totaldec);
+			if (skip<i){
+				frag.find("#anszero"+i).addClass("highlightdec"+(i===skip+1?" firstdec":""))
+			}
+		}
+		state.at = "done";
+		return state;
 	}
 	
 	root.M = {
-		usezeroes: usezeroes,
+		movezeroes: movezeroes,
+		usedecimals: usedecimals,
+		done: done,
 		fillinadd: fillinadd,
 		setupadd: setupadd,
 		setup: setup,

@@ -15,7 +15,7 @@
 		<script type="text/javascript">
 $("#multbutton").click(function(e){
 	var state = M.prep( Number( $("#mult1").val().replace(/,/,".") ) , Number( $("#mult2").val().replace(/,/,".") ) );
-	
+	$("#mult").empty();
 	
 	while(state.at!=="stop"){
 		state = M[state.at](state);
