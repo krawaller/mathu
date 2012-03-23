@@ -1,3 +1,9 @@
+#wrapper {
+	margin: 0 auto;
+	width: 600px;
+	margin-top: 8em;
+}
+
 div.info {
 	float: left;
 	width: 300px;
@@ -7,6 +13,7 @@ div.info {
 div.step {
 	margin: 1em;
 	margin-bottom: 2em;
+	height: 150px;
 }
 
 div.step:after, table.calc:after {
@@ -40,7 +47,7 @@ tr.num td.digitempty, tr.num td.digit, tr.num td.lead {
 	border-bottom-color: black;
 }
 
-tr.hidden {
+.hidden {
 	display: none;
 }
 
@@ -82,4 +89,31 @@ td.highlightnum, td.highlighttarget {
 
 td.borderbottom {
 	border-bottom-color: black !important;
+}
+
+.usenav .step {
+	display: none;
+}
+
+.usenav .shown {
+	display: block;
+}
+
+#leftbutton {
+	float: left;
+	margin-left: 2em;
+	position: relative;
+}
+
+#rightbutton {
+	float: right;
+	margin-right: 2em;
+	position: relative;
+}
+
+#newbutton {
+}
+
+#nav {
+	text-align: center;
 }

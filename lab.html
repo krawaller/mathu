@@ -1,0 +1,57 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="jsxgraph.css"/>
+		<script type="text/javascript" src="jsxgraphcore.js"></script>
+		<script type="text/javascript" src="math.js"></script>
+	</head>
+	<body>
+		<div id="box" class="jxgbox" style="float:left;width:300px; height:300px;"></div>
+		<div id="box2" class="jxgbox" style="float:left;width:300px; height:300px;margin-left:1em;"></div>
+		<script type="text/javascript">
+			function fix(num){
+				return (num+"").substr(0,5);
+			}
+			var brd = JXG.JSXGraph.initBoard('box',{
+				axis:false,
+				originX: 50,
+				originY: 250,
+				unitX: 10,
+				unitY: 10,
+				showNavigation: false,
+				showCopyright: false
+			});
+			var brd2 = JXG.JSXGraph.initBoard('box2',{
+				axis:true,
+				originX: 50,
+				originY: 250,
+				unitX: 10,
+				unitY: 2,
+				showNavigation: false,
+				showCopyright: false
+			});
+			brd.suspendUpdate();
+			brd.addChild(brd2);
+			var p1 = brd.create("point",[0,20],{visible:false}),
+				p2 = brd.create("point",[20,0],{visible:false}),
+				segment = brd.create("segment",[p1,p2],{visible:true,strokeWidth:1,color:"#AAA",dash:1}),
+				ne = brd.create("glider",[segment],{}),
+				nw = brd.create("point",[0,function(){return ne.Y();}],{visible:false}),
+				se = brd.create("point",[function(){return ne.X();},0],{visible:false}),
+				sw = brd.create("point",[0,0],{fixed:true,visible:false}),
+				rectangle = brd.create("polygon",[ne,nw,sw,se],{}),
+				floorname = brd.create("text",[function(){return ne.X()/2;},-1,function(){ return "x="+fix(ne.X()); }]),
+				wallname = brd.create("text",[-1,function(){return ne.Y()/2+1;},function(){ return (""+ne.Y()).substr(0,5); }]),
+				circumference = brd.create("text",[5,19,function(){return "Omkrets = 2*"+fix(ne.X())+" + 2*"+fix(ne.Y())+" = "+fix(2*ne.X()+2*ne.Y())}]),
+				area = brd.create("text",[5,17,function(){return "Area = "+fix(ne.X())+"*"+fix(ne.Y())+" = "+fix(ne.X()*ne.Y())}]),
+				res = brd2.create("point",[function(){return ne.X()},function(){return ne.X()*ne.Y()}],{visible:true,color:"purple"}),
+				resX = brd2.create("point",[function(){return ne.X()},0],{visible:false}),
+				resY = brd2.create("point",[0,function(){return ne.X()*ne.Y()}],{visible:false}),
+				segX = brd2.create("segment",[resX,res],{color:"purple",strokeWidth:1}),
+				segY = brd2.create("segment",[res,resY],{color:"purple",strokeWidth:1}),
+				graph = brd2.create("functiongraph",[function(x){return x*(20-x);},0,20],{dash:1})
+			brd.update();
+			brd.unsuspendUpdate();
+		</script>
+	</body>
+</html>

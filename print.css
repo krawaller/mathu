@@ -1,0 +1,7 @@
+#nav, #set {
+	display: none;
+}
+
+div#wrapper div.step {
+	display: block;
+}

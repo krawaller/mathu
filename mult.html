@@ -2,26 +2,63 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="calc.css"/>
+		<link rel="stylesheet" type="text/css" href="print.css" media="print"/>
 		<script type="text/javascript" src="jquery-1.7.1-min.js"></script>
 		<script type="text/javascript" src="mult.js"></script>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	</head>
 	<body>
-		<p>Multiplikation</p>
-		<input type="text" id="mult1" ></input>
-		<input type="text" id="mult2" ></input>
-		<input type="button" id="multbutton" value="Multiplicera!" />
-		<div id="mult"></div>
+	<div id="wrapper">
+		<div id="set" class="start">
+			<p>Multiplikation</p>
+			<input type="text" id="mult1" ></input>
+			<input type="text" id="mult2" ></input>
+			<input type="button" id="multbutton" value="Multiplicera!" />
+		</div>
+		<div id="mult" class="hidden usenav">
+		</div>
+		<div id="nav" class="hidden">
+			<input type="button" id="leftbutton" value="<---" />
+			<input type="button" id="newbutton" value="ny uträkning" />
+			<input type="button" id="rightbutton" value="--->" />
+		</div>
+	</div>
 		<script type="text/javascript">
 $("#multbutton").click(function(e){
 	var state = M.prep( Number( $("#mult1").val().replace(/,/,".") ) , Number( $("#mult2").val().replace(/,/,".") ) );
-	$("#mult").empty();
-	
+	$("#set").addClass("hidden");
+	$("#mult").removeClass("hidden").empty();
+	$("#nav").removeClass("hidden");
 	while(state.at!=="stop"){
 		state = M[state.at](state);
 		$("#mult").append( state.frag.html() );
 	}
-	
+	$("#mult").find(".step:first").addClass("shown");
+	fixnav();
+});
+
+$("#newbutton").click(function(e){
+	$("#set").removeClass("hidden");
+	$("#mult").addClass("hidden");
+	$("#nav").addClass("hidden");
+});
+
+function fixnav(){
+	var cur = $("#mult").find(".shown"),
+		prev = cur.prev(".step"),
+		next = cur.next(".step");
+	$("#leftbutton").toggleClass("hidden",!prev.length);
+	$("#rightbutton").toggleClass("hidden",!next.length);
+}
+
+$("#rightbutton").click(function(e){
+	$("#mult").find(".shown").removeClass("shown").next(".step").addClass("shown");
+	fixnav();
+});
+
+$("#leftbutton").click(function(e){
+	$("#mult").find(".shown").removeClass("shown").prev(".step").addClass("shown");
+	fixnav();
 });
 
 $("#mult1").val("5.89");

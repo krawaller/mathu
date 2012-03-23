@@ -202,12 +202,11 @@
 			}
 		}
 		msg+="."
-		
-		$(".info",frag).html(msg);
 
 		state.t++;
 		if (state.t === state.targetdigits.length+1){ // finished multiplying a row
 			if (state.n === state.numdigits.length){ // finished with last row
+				msg += " Nu har vi gångrat klart!"
 				state.at = "done";
 				if (state.numdigits.length>1){
 					state.at = "setupadd";
@@ -224,6 +223,8 @@
 				state.at = "beginrow";
 			}
 		}
+
+		$(".info",frag).html(msg);
 
 		return state;
 	}
@@ -324,7 +325,7 @@
 		for(i=1;i<=state.totalzeroes;i++){
 			console.log("zero",i,"total",state.totalzeroes,"dec",state.totaldec,"condition",state.totalzeroes-i>state.totaldec);
 			if (skip<i){
-				frag.find("#anszero"+i).addClass("highlightdec"+(i===skip+1?" firstdec":""))
+				frag.find("#anszero"+i).addClass("highlightans"+(i===skip+1?" firstdec":""))
 			}
 		}
 		state.at = "done";
